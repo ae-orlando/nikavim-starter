@@ -71,9 +71,11 @@ return {
       "nvim-treesitter/nvim-treesitter",
     },
     config = function()
+      pcall(require, "plenty")
+            
       require("refactoring").setup({})
     end,
-  },
+  },    
 
   -- Smart text objects
   {
