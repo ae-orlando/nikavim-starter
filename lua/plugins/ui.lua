@@ -166,6 +166,17 @@ return {
         callback = set_dashboard_highlights,
       })
       set_dashboard_highlights()
+      -- Close dashboard when a new file is opened
+      vim.api.nvim_create_autocdm({ "BufReadPre" }, {
+        gropu = gropu,
+        callback = function(args)
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                if vim.bo[buf].filetype == "dashboard" and buf ~= args.buf then
+                    vim.api.nvim_buf_delete(buf)
+                end
+            end
+        end,
+      })
 
       local header_art = {
         "███╗   ██╗██╗██╗  ██╗ █████╗ ██╗   ██╗██╗███╗   ███╗",
@@ -311,26 +322,6 @@ return {
               action = "qa",
             },
           },
-          
-          -- Auto-close dashboard when editing a real file
-          {
-            "nvimdev/dashboard-nvim",
-            optional = true,
-            config = function()
-                vim.api.nvim_create_autocdm({ "BufReadPre", "BufNewFile" }, {
-                    group = vim.api.nvim_create_augroup("NikaVimDashboardAutoClose", { clear = true }),
-                    callback = function(age)
-                        for_, buf in ipairs(vim.api.nvim_list_bufs()) do
-                            if vim.bo[buf].filetype == "dashboard" and buf ~= args.buf then
-                                vim.api.nvim_buf_delete(buf, --[[{force = true }]])
-                            end
-                        end
-                    end,
-                })
-            end,
-          },
-
-          
           footer = function()
             local version = vim.version()
             local version_text = string.format("Neovim %d.%d.%d", version.major, version.minor, version.patch)
