@@ -168,7 +168,7 @@ return {
       set_dashboard_highlights()
       -- Close dashboard when a new file is opened
       vim.api.nvim_create_autocdm({ "BufReadPre" }, {
-        gropu = gropu,
+        group = group,
         callback = function(args)
             for _, buf in ipairs(vim.api.nvim_list_bufs()) do
                 if vim.bo[buf].filetype == "dashboard" and buf ~= args.buf then
