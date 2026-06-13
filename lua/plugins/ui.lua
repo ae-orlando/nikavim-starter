@@ -166,17 +166,6 @@ return {
         callback = set_dashboard_highlights,
       })
       set_dashboard_highlights()
-      -- Close dashboard when a new file is opened
-      vim.api.nvim_create_autocdm({ "BufReadPre" }, {
-        group = group,
-        callback = function(args)
-            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-                if vim.bo[buf].filetype == "dashboard" and buf ~= args.buf then
-                    vim.api.nvim_buf_delete(buf)
-                end
-            end
-        end,
-      })
 
       local header_art = {
         "███╗   ██╗██╗██╗  ██╗ █████╗ ██╗   ██╗██╗███╗   ███╗",
