@@ -37,7 +37,7 @@ return {
     config = function()
       require("noice").setup({
         cmdline = {
-          enabled = true,
+          enabled = false,
           view = "cmdline",
           opts = {},
           format = {
