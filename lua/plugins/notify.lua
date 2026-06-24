@@ -38,17 +38,8 @@ return {
       require("noice").setup({
         cmdline = {
           enabled = true,
-          view = "cmdline_popup",
-          opts = {
-            position = {
-              row = "50%",
-              col = "50%",
-            },
-            size = {
-              width = "auto",
-              height = "auto",
-            },
-          },
+          view = "cmdline",
+          opts = {},
           format = {
             cmdline = { pattern = "^:", icon = "", lang = "vim" },
             search_down = { kind = "search", pattern = "^/", icon = "", lang = "regex" },
@@ -74,7 +65,7 @@ return {
         },
         presets = {
           bottom_search = false,
-          command_palette = true,
+          command_palette = false,
           long_message_to_split = true,
           inc_rename = true,
           lsp_doc_border = true,

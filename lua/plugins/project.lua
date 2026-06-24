@@ -10,7 +10,9 @@ return {
 
       require("telescope").load_extension("projects")
 
-      vim.keymap.set("n", "<leader>pp", require("telescope.builtin").projects, { desc = "Find projects" })
+      vim.keymap.set("n", "<leader>pp", function()
+        require("telescope.builtin").projects()
+      end, { desc = "Find projects" })
     end,
   },
 }

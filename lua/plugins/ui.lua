@@ -145,12 +145,22 @@ return {
     event = "VeryLazy",
     config = function()
       require("cinnamon").setup({
-        always_scroll = true,
-        max_delta = 60,
-        scroll_limit = 60,
-        centralize_scrollbar = true,
+        options = {
+          mode = "cursor",
+          delay = 5,
+          max_delta = {
+            line = 60,
+            column = 60,
+            time = 1000,
+          },
+          step_size = {
+            vertical = 1,
+            horizontal = 2,
+          },
+        },
         keymaps = {
-          -- Use defaults: C-d, C-u, C-f, C-b, C-y, C-e, G, gg, etc.
+          basic = true,
+          extra = false,
         },
       })
     end,
@@ -273,6 +283,22 @@ return {
       -- Track dashboard buffer so we can wipe it when real content opens
       local dashboard_buf = vim.api.nvim_get_current_buf()
 
+      -- If a file was already loaded during startup (e.g. `nvim -c ":Man"`),
+      -- skip the dashboard entirely so it doesn't split.
+      local existing = vim.fn.getbufinfo({ buflisted = 1 })
+      local skip_dashboard = false
+      for _, b in ipairs(existing) do
+        if b.bufnr ~= dashboard_buf and b.name ~= "" then
+          skip_dashboard = true
+          break
+        end
+      end
+
+      if skip_dashboard then
+        pcall(vim.api.nvim_buf_delete, dashboard_buf, { force = true })
+        return
+      end
+
       require("dashboard").setup({
         theme = "doom",
         config = {
@@ -312,17 +338,6 @@ return {
               action = "Telescope live_grep",
             },
             {
-              icon = "  ",
-              icon_hl = "Title",
-              desc = "Open buffers      ",
-              desc_hl = "String",
-              key = "b",
-              key_hl = "Number",
-              key_format = " %s",
-              keymap = "SPC f b",
-              action = "Telescope buffers",
-            },
-            {
               icon = "󰙅  ",
               icon_hl = "Title",
               desc = "File explorer     ",
@@ -343,48 +358,6 @@ return {
               key_format = " %s",
               keymap = "SPC t t",
               action = "ToggleTerm",
-            },
-            {
-              icon = "  ",
-              icon_hl = "Title",
-              desc = "New file          ",
-              desc_hl = "String",
-              key = "n",
-              key_hl = "Number",
-              key_format = " %s",
-              action = "ene | startinsert",
-            },
-            {
-              icon = "  ",
-              icon_hl = "Title",
-              desc = "Restore session   ",
-              desc_hl = "String",
-              key = "s",
-              key_hl = "Number",
-              key_format = " %s",
-              keymap = "SPC S l",
-              action = "lua require('persistence').load()",
-            },
-            {
-              icon = "󰆧  ",
-              icon_hl = "Title",
-              desc = "Switch project    ",
-              desc_hl = "String",
-              key = "p",
-              key_hl = "Number",
-              key_format = " %s",
-              keymap = "SPC p p",
-              action = "Telescope projects",
-            },
-            {
-              icon = "  ",
-              icon_hl = "Title",
-              desc = "Browse config     ",
-              desc_hl = "String",
-              key = "c",
-              key_hl = "Number",
-              key_format = " %s",
-              action = "lua require('nvim-tree.api').tree.open({path = vim.fn.stdpath('config')})",
             },
             {
               icon = "󰒲  ",
@@ -448,15 +421,20 @@ return {
         },
       })
 
-      -- Automatically wipe the dashboard buffer once the user opens
-      -- a *new* buffer (e.g. :Man, :help, :Telescope file pick).
-      -- We guard against :e (which reuses the current buffer) by
-      -- comparing the event's buffer against dashboard_buf.
-      vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
-        once = true,
-        callback = function(ctx)
-          if vim.api.nvim_buf_is_valid(dashboard_buf) and ctx.buf ~= dashboard_buf then
+      -- Automatically wipe the dashboard buffer when the first real
+      -- file buffer is entered (handles :Man, :help, Telescope, etc.).
+      -- Guards against :e (same buffer) and during initialization.
+      local dash_group = vim.api.nvim_create_augroup("NikaVimDashboard", { clear = true })
+      vim.api.nvim_create_autocmd("BufEnter", {
+        group = dash_group,
+        callback = function()
+          if not vim.api.nvim_buf_is_valid(dashboard_buf) then
+            return true  -- already gone, remove autocmd
+          end
+          local cur_buf = vim.api.nvim_get_current_buf()
+          if cur_buf ~= dashboard_buf and vim.fn.bufname(cur_buf) ~= "" then
             pcall(vim.api.nvim_buf_delete, dashboard_buf, { force = true })
+            return true  -- done, remove autocmd
           end
         end,
       })

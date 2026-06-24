@@ -20,7 +20,7 @@ return {
     },
     config = function()
       require("CopilotChat").setup({
-        show_help = true,
+        show_help = false,
         debug = false,
         mappings = {
           close = "<C-c>",
