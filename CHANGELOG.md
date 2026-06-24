@@ -2,6 +2,14 @@
 
 All notable changes to this Neovim configuration are documented here.
 
+## [v3.1.2] - 2026-06-24
+
+### 🐛 Bug Fixes
+- **Autopairs**: Curly braces, quotes, and brackets not autoclosing in insert mode
+  - Removed lazy-loading (`event = "InsertEnter"`) to avoid race condition with nvim-cmp
+  - Removed `check_ts = true` which was causing false negatives from treesitter context checks
+  - Added `nvim-autopairs.completion.cmp` integration so pairs work after completion item selection
+
 ## [v3.1.1] - 2026-06-24
 
 ### 🐛 Bug Fixes

@@ -17,12 +17,17 @@ return {
   -- Auto-pairs
   {
     "windwp/nvim-autopairs",
-    event = "InsertEnter",
+    lazy = false,
     config = function()
       require("nvim-autopairs").setup({
-        check_ts = true,
         disable_filetype = { "TelescopePrompt" },
       })
+
+      -- Integrate with nvim-cmp so pairs work after completions
+      local ok, cmp = pcall(require, "nvim-autopairs.completion.cmp")
+      if ok then
+        cmp.event_on_confirm_done()
+      end
     end,
   },
 
