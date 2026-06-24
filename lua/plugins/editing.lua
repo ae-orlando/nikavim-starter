@@ -26,7 +26,7 @@ return {
       -- Integrate with nvim-cmp so pairs work after completions
       local ok, cmp = pcall(require, "nvim-autopairs.completion.cmp")
       if ok then
-        cmp.event_on_confirm_done()
+        cmp.on_confirm_done()
       end
     end,
   },
