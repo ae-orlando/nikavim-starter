@@ -305,6 +305,16 @@ return {
           header = dashboard_header,
           center = {
             {
+              icon = "  ",
+              icon_hl = "Title",
+              desc = "New file          ",
+              desc_hl = "String",
+              key = "n",
+              key_hl = "Number",
+              key_format = " %s",
+              action = "ene | startinsert",
+            },
+            {
               icon = "  ",
               icon_hl = "Title",
               desc = "Find files        ",
@@ -347,17 +357,6 @@ return {
               key_format = " %s",
               keymap = "CTRL n",
               action = "NvimTreeToggle",
-            },
-            {
-              icon = "  ",
-              icon_hl = "Title",
-              desc = "Terminal          ",
-              desc_hl = "String",
-              key = "t",
-              key_hl = "Number",
-              key_format = " %s",
-              keymap = "SPC t t",
-              action = "ToggleTerm",
             },
             {
               icon = "󰒲  ",
