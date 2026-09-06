@@ -1,34 +1,17 @@
 -- ~/.config/nvim/init.lua
--- NikaVim — thin bootstrap
---
--- In development mode, this file finds the sibling nika-source/ directory
--- and inherits all plugin configs via runtimepath (single source of truth).
--- When no sibling is found (production / end-user), it falls back to its
--- own lua/ directory (populated by sync.sh during release builds).
+-- Main Neovim configuration entry point
 
--- ──────────────────────────────────────────────
--- 1. Resolve paths relative to this file
--- ──────────────────────────────────────────────
-local src = debug.getinfo(1, "S").source               -- "@" prefix
-if src:sub(1, 1) == "@" then
-  src = src:sub(2)
-end
-local this_dir = vim.fn.fnamemodify(src, ":p:h")        -- dir of init.lua
+local config_dir = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h")
+vim.opt.rtp:prepend(config_dir)
+package.path = config_dir .. "/lua/?.lua;" .. config_dir .. "/lua/?/init.lua;" .. package.path
 
--- ──────────────────────────────────────────────
--- 2. Inheritance — sibling nika-source (dev mode)
--- ──────────────────────────────────────────────
-local nika_source = vim.fn.fnamemodify(this_dir .. "/../nika-source", ":p")
-if vim.fn.isdirectory(nika_source) == 1 then
-  vim.opt.rtp:prepend(nika_source)
-end
+-- Load core configuration (options and keymaps)
+require("core")
 
--- ──────────────────────────────────────────────
--- 3. Bootstrap lazy.nvim
--- ──────────────────────────────────────────────
+-- Bootstrap lazy.nvim package manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
+  local output = vim.fn.system({
     "git",
     "clone",
     "--filter=blob:none",
@@ -36,27 +19,25 @@ if not vim.loop.fs_stat(lazypath) then
     "--branch=stable",
     lazypath,
   })
+  if vim.v.shell_error ~= 0 then
+    error("Failed to bootstrap lazy.nvim: " .. vim.trim(output))
+  end
 end
 vim.opt.rtp:prepend(lazypath)
 
--- ──────────────────────────────────────────────
--- 4. Load core options & keymaps
--- ──────────────────────────────────────────────
-require("core")
-
--- ──────────────────────────────────────────────
--- 5. Load all plugins
--- ──────────────────────────────────────────────
+-- Load all plugins from plugins/init.lua
 require("lazy").setup("plugins", {
+  lockfile = config_dir .. "/lazy-lock.json",
+  rocks = {
+    enabled = false,
+  },
   change_detection = {
     enabled = true,
     notify = true,
   },
 })
 
--- ──────────────────────────────────────────────
--- 6. Ready indicator
--- ──────────────────────────────────────────────
+-- Print startup info
 vim.schedule(function()
   print("✨ NikaVim ready!")
 end)
